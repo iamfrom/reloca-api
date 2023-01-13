@@ -14,6 +14,7 @@ use Marvel\Database\Models\Product;
 use Marvel\Database\Models\Wishlist;
 use Marvel\Database\Models\Variation;
 use Marvel\Exceptions\MarvelException;
+use Marvel\Database\Models\DownloadToken;
 use Illuminate\Database\Eloquent\Collection;
 use Marvel\Http\Requests\ProductCreateRequest;
 use Marvel\Http\Requests\ProductUpdateRequest;
@@ -468,5 +469,24 @@ class ProductController extends CoreController
         $user = $request->user();
         $wishlist = Wishlist::where('user_id', $user->id)->pluck('product_id');
         return $this->repository->whereIn('id', $wishlist);
+    }
+    
+    public function increaseDownloadsCount(Request $request)
+    {
+        $user = $request->user();
+        $product = Product::findOrFail(request('product_id'));
+
+        if (!$product->is_digital) {
+            return response('Product is not digital', 422);
+        }
+
+        $attr = [
+            'user_id' => $user?->id ?? 0,
+            'token' => Str::random(16),
+            'digital_file_id' => $product->digital_file->id,
+            'downloaded' => 1,
+        ];
+
+        DownloadToken::create($attr);
     }
 }

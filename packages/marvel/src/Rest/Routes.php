@@ -130,6 +130,7 @@ Route::apiResource('orders', OrderController::class, [
     'only' => ['show', 'store'],
 ]);
 Route::post('orders/payment', [OrderController::class, 'submitPayment']);
+Route::post('product/viewed', [ProductController::class, 'increaseDownloadsCount']);
 
 /**
  * ******************************************
